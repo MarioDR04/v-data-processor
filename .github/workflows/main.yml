@@ -1,0 +1,33 @@
+name: Atualizar Lista Vavoo
+on:
+  schedule:
+    - cron: '0 */6 * * *' # Atualiza a cada 6 horas
+  workflow_dispatch:      # Permite rodar manualmente
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Instalar Requests
+        run: pip install requests
+
+      - name: Gerar Lista
+        run: python vavoo.py
+
+      - name: Salvar no GitHub
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git add lista.m3u
+          git commit -m "Lista atualizada" || exit 0
+          git push
