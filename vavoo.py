@@ -1,7 +1,7 @@
 import requests
 
 def generate_m3u():
-    # API alternativa que lida melhor com tokens
+    # Buscamos a lista de IDs, não os links finais com token
     url = "https://www2.vavoo.to/live2/index"
     params = {"output": "json"}
     
@@ -14,12 +14,13 @@ def generate_m3u():
             name = item.get('name')
             group = item.get('group')
             logo = item.get('logo')
-            url_original = item.get('url')
+            # Pegamos o ID do canal para montar um link que o OTT processe
+            channel_id = item.get('url').split('/')[-1]
             
-            # Adicionamos um User-Agent de Smart TV para evitar o erro 502
-            # E formatamos a URL para passar o token corretamente
+            # Criamos um link que obriga o player a usar o SEU IP para validar
+            # Adicionamos a sintaxe de User-Agent que o OTT Navigator entende
             m3u_content += f'#EXTINF:-1 tvg-logo="{logo}" group-title="{group}",{name}\n'
-            m3u_content += f'{url_original}|User-Agent=VAVOO/2.6\n'
+            m3u_content += f'https://vavoo.to/live2/{channel_id}.ts|User-Agent=VAVOO/2.6\n'
         
         with open("lista.m3u", "w", encoding="utf-8") as f:
             f.write(m3u_content)
