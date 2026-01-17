@@ -1,7 +1,7 @@
 name: Atualizar Lista Vavoo
 on:
   schedule:
-    - cron: '0 */6 * * *' # Atualiza a cada 6 horas
+    - cron: '0 */2 * * *' # Atualiza a cada 6 horas
   workflow_dispatch:      # Permite rodar manualmente
 
 jobs:
