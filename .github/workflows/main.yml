@@ -1,33 +1,42 @@
 name: Atualizar Lista Vavoo
+
 on:
   schedule:
-    - cron: '0 */2 * * *' # Atualiza a cada 2 horas
-  workflow_dispatch:      # Permite rodar manualmente
+    - cron: '0 */2 * * *'   # a cada 2 horas
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Configurar Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.9'
 
-      - name: Instalar Requests
-        run: pip install requests
+      - name: Definir timezone UTC
+        run: sudo timedatectl set-timezone UTC
 
-      - name: Gerar Lista
+      - name: Instalar dependências
+        run: pip install --no-cache-dir requests
+
+      - name: Gerar Lista M3U
         run: python vavoo.py
 
-      - name: Salvar no GitHub
+      - name: Commit e Push (se houver alterações)
         run: |
-          git config --local user.email "actions@github.com"
-          git config --local user.name "GitHub Actions"
-          git add lista.m3u
-          git commit -m "Lista atualizada" || exit 0
-          git push
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git config --local user.email "actions@github.com"
+            git config --local user.name "GitHub Actions"
+            git add lista.m3u
+            git commit -m "Atualiza lista.m3u"
+            git push
+          else
+            echo "Nenhuma alteração para commitar"
+          fi
